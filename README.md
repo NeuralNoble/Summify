@@ -174,18 +174,8 @@ summary-extension/
 - **Content Analysis**: Sentiment analysis and key topic extraction
 - **Collaboration Features**: Share summaries with team members
 
-## 📄 License
-
-This project is open source and available under the MIT License.
 
 ## 🤝 Contributing
 
 Contributions are welcome! Feel free to submit issues, feature requests, or pull requests.
 
-
-
----
-
-**Enjoy using AI Summary Extension!** 🎉
-
-Transform your reading experience with intelligent, AI-powered summaries. 
