@@ -48,14 +48,15 @@ A powerful Chrome extension that uses Google's Gemini AI to generate intelligent
 ## 🚀 Installation & Setup
 
 ### Step 1: Download the Extension
-1. Download the extension files as a ZIP folder
+1. Download the `ai-summary-extension.zip` file
 2. Extract the ZIP file to a location on your computer
+3. You should see a folder with all the extension files
 
 ### Step 2: Load in Chrome
 1. Open Chrome and go to `chrome://extensions/`
 2. Enable "Developer mode" (toggle in top-right corner)
 3. Click "Load unpacked"
-4. Select the folder containing the extension files
+4. Select the extracted folder containing the extension files
 5. The extension should now appear in your extensions list
 
 ### Step 3: Get Your API Key
