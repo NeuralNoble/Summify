@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AI Summary</title>
+    <style>
+      :root {
+        /* Light theme variables */
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8f9fa;
+        --text-primary: #333333;
+        --text-secondary: #666666;
+        --border-color: #dddddd;
+        --button-primary: #4285f4;
+        --button-primary-hover: #3367d6;
+        --button-secondary: #34a853;
+        --button-secondary-hover: #2e8b57;
+        --result-bg: #ffffff;
+        --loader-border: #f3f3f3;
+        --loader-spinner: #3498db;
+      }
+
+      [data-theme="dark"] {
+        /* Dark theme variables */
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --text-primary: #ffffff;
+        --text-secondary: #cccccc;
+        --border-color: #444444;
+        --button-primary: #4285f4;
+        --button-primary-hover: #3367d6;
+        --button-secondary: #34a853;
+        --button-secondary-hover: #2e8b57;
+        --result-bg: #2d2d2d;
+        --loader-border: #444444;
+        --loader-spinner: #4285f4;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        min-width: 500px;
+        min-height: 300px;
+        padding: 15px;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      h2 {
+        color: var(--text-primary);
+        margin: 0;
+        transition: color 0.3s ease;
+      }
+
+      .theme-toggle {
+        position: relative;
+        width: 50px;
+        height: 24px;
+        background-color: var(--border-color);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .theme-toggle.active {
+        background-color: var(--button-primary);
+      }
+
+      .theme-toggle::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 20px;
+        height: 20px;
+        background-color: white;
+        border-radius: 50%;
+        transition: transform 0.3s ease;
+      }
+
+      .theme-toggle.active::after {
+        transform: translateX(26px);
+      }
+
+      .theme-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-bottom: 5px;
+        text-align: center;
+      }
+
+      .options {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      button {
+        padding: 8px 15px;
+        background-color: var(--button-primary);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: var(--button-primary-hover);
+      }
+
+      #copy-btn {
+        background-color: var(--button-secondary);
+      }
+
+      #copy-btn:hover {
+        background-color: var(--button-secondary-hover);
+      }
+
+      #summary-type {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+      }
+
+      #result {
+        margin-top: 15px;
+        padding: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        min-height: 150px;
+        max-height: 400px;
+        overflow-y: auto;
+        line-height: 1.6;
+        background-color: var(--result-bg);
+        color: var(--text-primary);
+        transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+      }
+
+      /* Markdown styling */
+      #result h1, #result h2, #result h3, #result h4, #result h5, #result h6 {
+        margin: 16px 0 8px 0;
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      #result h1 { font-size: 18px; }
+      #result h2 { font-size: 16px; }
+      #result h3 { font-size: 15px; }
+
+      #result p {
+        margin: 8px 0;
+        color: var(--text-primary);
+      }
+
+      #result ul, #result ol {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+
+      #result li {
+        margin-bottom: 6px;
+        color: var(--text-primary);
+      }
+
+      #result strong, #result b {
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      #result em, #result i {
+        font-style: italic;
+        color: var(--text-secondary);
+      }
+
+      #result code {
+        background-color: var(--bg-secondary);
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        color: var(--text-primary);
+      }
+
+      #result pre {
+        background-color: var(--bg-secondary);
+        padding: 12px;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin: 8px 0;
+        border: 1px solid var(--border-color);
+      }
+
+      #result pre code {
+        background: none;
+        padding: 0;
+        color: var(--text-primary);
+      }
+
+      #result blockquote {
+        border-left: 4px solid var(--button-primary);
+        margin: 8px 0;
+        padding-left: 12px;
+        color: var(--text-secondary);
+        font-style: italic;
+      }
+
+      #result hr {
+        border: none;
+        border-top: 1px solid var(--border-color);
+        margin: 16px 0;
+      }
+
+      #result a {
+        color: var(--button-primary);
+        text-decoration: none;
+      }
+
+      #result a:hover {
+        text-decoration: underline;
+      }
+
+      .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 150px;
+      }
+
+      .loader {
+        border: 4px solid var(--loader-border);
+        border-top: 4px solid var(--loader-spinner);
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h2>AI Summary</h2>
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <div class="theme-label">Dark Theme</div>
+        <div class="theme-toggle" id="theme-toggle"></div>
+      </div>
+    </div>
+
+    <div class="options">
+      <select id="summary-type">
+        <option value="brief">Brief Summary</option>
+        <option value="detailed">Detailed Summary</option>
+        <option value="bullets">Bullet Points</option>
+      </select>
+      <button id="summarize">Summarize This Page</button>
+      <button id="copy-btn">Copy Summary</button>
+    </div>
+
+    <div id="result">
+      Select a summary type and click 'Summarize This Page' to generate a
+      summary.
+    </div>
+
+    <script src="config.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
