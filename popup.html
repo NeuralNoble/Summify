@@ -2,284 +2,366 @@
 <html>
   <head>
     <title>AI Summary</title>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
     <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
       :root {
-        /* Light theme variables */
-        --bg-primary: #ffffff;
-        --bg-secondary: #f8f9fa;
-        --text-primary: #333333;
-        --text-secondary: #666666;
-        --border-color: #dddddd;
-        --button-primary: #4285f4;
-        --button-primary-hover: #3367d6;
-        --button-secondary: #34a853;
-        --button-secondary-hover: #2e8b57;
-        --result-bg: #ffffff;
-        --loader-border: #f3f3f3;
-        --loader-spinner: #3498db;
+        --gradient: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);
+        --header-radius: 18px;
+        --card-radius: 14px;
+        --pill-bg: #f3f4f6;
+        --pill-text: #222;
+        --icon-color: #5b6cff;
+        --copy-hover: #f3f4f6;
+        --bg: #f8f9fb;
+        --text: #222;
+        --text-secondary: #666;
+        --button-bg: #2563eb;
+        --button-bg-hover: #1d4ed8;
+        --button-text: #fff;
+        --dropdown-bg: #fff;
+        --dropdown-border: #bfcaff;
+        --result-bg: #fff;
+        --result-border: #e6eaff;
+        --muted: #f3f4f6;
+        --muted-30: #f3f4f699;
       }
-
       [data-theme="dark"] {
-        /* Dark theme variables */
-        --bg-primary: #1a1a1a;
-        --bg-secondary: #2d2d2d;
-        --text-primary: #ffffff;
-        --text-secondary: #cccccc;
-        --border-color: #444444;
-        --button-primary: #4285f4;
-        --button-primary-hover: #3367d6;
-        --button-secondary: #34a853;
-        --button-secondary-hover: #2e8b57;
-        --result-bg: #2d2d2d;
-        --loader-border: #444444;
-        --loader-spinner: #4285f4;
+        --gradient: linear-gradient(90deg, #232946 0%, #5b6cff 100%);
+        --bg: #181a20;
+        --text: #fff;
+        --text-secondary: #b0b3b8;
+        --pill-bg: #232946;
+        --pill-text: #fff;
+        --dropdown-bg: #232946;
+        --dropdown-border: #232946;
+        --result-bg: #232946;
+        --result-border: #232946;
+        --muted: #232946;
+        --muted-30: #23294699;
       }
-
       body {
-        font-family: Arial, sans-serif;
-        min-width: 500px;
-        min-height: 300px;
-        padding: 15px;
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
-        transition: background-color 0.3s ease, color 0.3s ease;
-      }
-
-      .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-      }
-
-      h2 {
-        color: var(--text-primary);
         margin: 0;
-        transition: color 0.3s ease;
-      }
-
-      .theme-toggle {
-        position: relative;
-        width: 50px;
-        height: 24px;
-        background-color: var(--border-color);
-        border-radius: 12px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
-
-      .theme-toggle.active {
-        background-color: var(--button-primary);
-      }
-
-      .theme-toggle::after {
-        content: '';
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        width: 20px;
-        height: 20px;
-        background-color: white;
-        border-radius: 50%;
-        transition: transform 0.3s ease;
-      }
-
-      .theme-toggle.active::after {
-        transform: translateX(26px);
-      }
-
-      .theme-label {
-        font-size: 12px;
-        color: var(--text-secondary);
-        margin-bottom: 5px;
-        text-align: center;
-      }
-
-      .options {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 15px;
-      }
-
-      button {
-        padding: 8px 15px;
-        background-color: var(--button-primary);
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-      }
-
-      button:hover {
-        background-color: var(--button-primary-hover);
-      }
-
-      #copy-btn {
-        background-color: var(--button-secondary);
-      }
-
-      #copy-btn:hover {
-        background-color: var(--button-secondary-hover);
-      }
-
-      #summary-type {
-        padding: 8px;
-        border-radius: 4px;
-        border: 1px solid var(--border-color);
-        background-color: var(--bg-primary);
-        color: var(--text-primary);
-        transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-      }
-
-      #result {
-        margin-top: 15px;
-        padding: 15px;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        min-height: 150px;
-        max-height: 400px;
-        overflow-y: auto;
-        line-height: 1.6;
-        background-color: var(--result-bg);
-        color: var(--text-primary);
-        transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-      }
-
-      /* Markdown styling */
-      #result h1, #result h2, #result h3, #result h4, #result h5, #result h6 {
-        margin: 16px 0 8px 0;
-        color: var(--text-primary);
-        font-weight: 600;
-      }
-
-      #result h1 { font-size: 18px; }
-      #result h2 { font-size: 16px; }
-      #result h3 { font-size: 15px; }
-
-      #result p {
-        margin: 8px 0;
-        color: var(--text-primary);
-      }
-
-      #result ul, #result ol {
-        margin: 8px 0;
-        padding-left: 20px;
-      }
-
-      #result li {
-        margin-bottom: 6px;
-        color: var(--text-primary);
-      }
-
-      #result strong, #result b {
-        font-weight: 600;
-        color: var(--text-primary);
-      }
-
-      #result em, #result i {
-        font-style: italic;
-        color: var(--text-secondary);
-      }
-
-      #result code {
-        background-color: var(--bg-secondary);
-        padding: 2px 4px;
-        border-radius: 3px;
-        font-family: 'Courier New', monospace;
-        font-size: 12px;
-        color: var(--text-primary);
-      }
-
-      #result pre {
-        background-color: var(--bg-secondary);
-        padding: 12px;
-        border-radius: 4px;
-        overflow-x: auto;
-        margin: 8px 0;
-        border: 1px solid var(--border-color);
-      }
-
-      #result pre code {
-        background: none;
         padding: 0;
-        color: var(--text-primary);
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Inter', Arial, sans-serif;
       }
-
-      #result blockquote {
-        border-left: 4px solid var(--button-primary);
-        margin: 8px 0;
-        padding-left: 12px;
+      .popup-root {
+        width: 420px;
+        height: 600px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+      }
+      .popup-card {
+        background: var(--bg);
+        border-radius: var(--card-radius);
+        box-shadow: 0 4px 24px rgba(44, 62, 80, 0.10);
+        overflow: hidden;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .popup-header {
+        background: var(--gradient);
+        border-radius: 0 0 var(--header-radius) var(--header-radius);
+        padding: 16px 15px 12px 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .icon-pill {
+        background: rgba(255,255,255,0.18);
+        border-radius: 10px;
+        padding: 7px 8px 7px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .header-title {
+        font-size: 1.18em;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: 0.2px;
+      }
+      .theme-toggle-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 1.1em;
+        cursor: pointer;
+        outline: none;
+        padding: 0;
+        margin-left: 8px;
+        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s, color 0.2s;
+      }
+      .theme-toggle-btn:hover {
+        background: rgba(255,255,255,0.18);
+      }
+      .popup-controls {
+        background: var(--muted-30);
+        border-bottom: 1px solid var(--dropdown-border);
+        padding: 18px 18px 12px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .selector-row {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgba(44, 62, 80, 0.04);
+        border: 1.5px solid var(--dropdown-border);
+        padding: 0 10px;
+        height: 38px;
+        position: relative;
+        gap: 6px;
+      }
+      .selector-icon {
+        color: var(--icon-color);
+        font-size: 1.1em;
+        margin-right: 2px;
+      }
+      #summary-type {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: var(--text);
+        font-size: 1em;
+        padding: 0 0 0 2px;
+        height: 36px;
+        appearance: none;
+        min-width: 0;
+      }
+      .selector-chevron {
+        color: #b0b3b8;
+        font-size: 1em;
+        margin-left: 2px;
+      }
+      .summarize-btn {
+        width: 100%;
+        padding: 10px 0;
+        border-radius: 10px;
+        background: var(--gradient);
+        color: var(--button-text);
+        font-size: 1.08em;
+        font-weight: 600;
+        border: none;
+        margin-top: 2px;
+        margin-bottom: 2px;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 1px 4px rgba(44, 62, 80, 0.04);
+      }
+      .summarize-btn:hover {
+        filter: brightness(1.07);
+      }
+      .popup-summary {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0 0 0 0;
+        background: transparent;
+      }
+      .summary-card {
+        position: relative;
+        margin: 18px 18px 0 18px;
+        padding: 14px 14px 10px 14px;
+        border-radius: 14px;
+        background: var(--result-bg);
+        box-shadow: 0 2px 8px rgba(44, 62, 80, 0.06);
+        border: 1.2px solid #e6eaff;
+        min-height: 60px;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .summary-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2px;
+      }
+      .summary-pill {
+        display: inline-block;
+        background: #f3f4f6;
+        color: #222;
+        font-size: 0.97em;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 3px 14px;
+        margin-bottom: 0;
+        margin-right: 8px;
+      }
+      .copy-btn {
+        background: none;
+        border: none;
+        color: #b0b3b8;
+        font-size: 1.08em;
+        cursor: pointer;
+        border-radius: 50%;
+        padding: 3px;
+        transition: background 0.15s, color 0.15s;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .copy-btn:hover {
+        background: #f3f4f6;
+        color: var(--icon-color);
+      }
+      .summary-content {
+        margin-top: 2px;
+        color: var(--text);
+        font-size: 0.99em;
+        line-height: 1.55;
+      }
+      /* Markdown styles (prose-like) */
+      .prose h1, .prose h2, .prose h3 {
+        font-weight: 700;
+        margin: 12px 0 6px 0;
+        font-size: 1.08em;
+      }
+      .prose ul, .prose ol {
+        margin: 6px 0 6px 18px;
+        padding-left: 0;
+      }
+      .prose li {
+        margin-bottom: 4px;
+        font-size: 0.99em;
+      }
+      .prose strong, .prose b {
+        font-weight: 700;
+      }
+      .prose em, .prose i {
+        font-style: italic;
+        color: var(--text-secondary);
+      }
+      .prose code {
+        background: #f3f4f6;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.98em;
+      }
+      .prose pre {
+        background: #f3f4f6;
+        padding: 10px;
+        border-radius: 6px;
+        overflow-x: auto;
+        margin: 6px 0;
+      }
+      .prose blockquote {
+        border-left: 4px solid var(--icon-color);
+        margin: 6px 0;
+        padding-left: 10px;
         color: var(--text-secondary);
         font-style: italic;
       }
-
-      #result hr {
+      .prose hr {
         border: none;
-        border-top: 1px solid var(--border-color);
-        margin: 16px 0;
+        border-top: 1px solid #e6eaff;
+        margin: 10px 0;
       }
-
-      #result a {
-        color: var(--button-primary);
+      .prose a {
+        color: var(--icon-color);
         text-decoration: none;
       }
-
-      #result a:hover {
+      .prose a:hover {
         text-decoration: underline;
       }
-
       .loading {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 150px;
+        height: 60px;
       }
-
       .loader {
-        border: 4px solid var(--loader-border);
-        border-top: 4px solid var(--loader-spinner);
+        border: 4px solid #e0e7ff;
+        border-top: 4px solid var(--icon-color);
         border-radius: 50%;
-        width: 30px;
-        height: 30px;
+        width: 24px;
+        height: 24px;
         animation: spin 1s linear infinite;
       }
-
       @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
     </style>
   </head>
   <body>
-    <div class="header">
-      <h2>AI Summary</h2>
-      <div style="display: flex; flex-direction: column; align-items: center;">
-        <div class="theme-label">Dark Theme</div>
-        <div class="theme-toggle" id="theme-toggle"></div>
+    <div class="popup-root">
+      <div class="popup-card">
+        <!-- Header -->
+        <div class="popup-header">
+          <div class="header-left">
+            <span class="icon-pill"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+            <span class="header-title">AI Summary</span>
+          </div>
+          <button class="theme-toggle-btn" id="theme-toggle" title="Toggle theme">
+            <i class="fa-regular fa-moon" id="theme-icon"></i>
+          </button>
+        </div>
+
+        <!-- Controls -->
+        <div class="popup-controls">
+          <div class="selector-row">
+            <span class="selector-icon"><i class="fa-regular fa-file-lines"></i></span>
+            <select id="summary-type">
+              <option value="brief">Quick Summary</option>
+              <option value="detailed">Detailed Summary</option>
+              <option value="bullets">Key Points</option>
+            </select>
+            <span class="selector-chevron"><i class="fa-solid fa-chevron-down"></i></span>
+          </div>
+          <button class="summarize-btn" id="summarize">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            Summarize This Page
+          </button>
+        </div>
+
+        <!-- Summary Content -->
+        <div class="popup-summary">
+          <div class="summary-card" id="summary-card" style="display:none;">
+            <div class="summary-card-header">
+              <span class="summary-pill" id="summary-pill">Summary</span>
+              <button class="copy-btn" id="copy-btn" title="Copy summary">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+            <div class="summary-content prose" id="result"></div>
+          </div>
+          <div class="summary-card" id="empty-card">
+            <div class="summary-content prose" id="empty-result">
+              Select a summary type and click <b>'Summarize This Page'</b> to generate a summary.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <div class="options">
-      <select id="summary-type">
-        <option value="brief">Brief Summary</option>
-        <option value="detailed">Detailed Summary</option>
-        <option value="bullets">Bullet Points</option>
-      </select>
-      <button id="summarize">Summarize This Page</button>
-      <button id="copy-btn">Copy Summary</button>
-    </div>
-
-    <div id="result">
-      Select a summary type and click 'Summarize This Page' to generate a
-      summary.
-    </div>
-
     <script src="config.js"></script>
     <script src="popup.js"></script>
   </body>

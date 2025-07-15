@@ -42,108 +42,129 @@ function parseMarkdown(text) {
 }
 
 // Theme toggle functionality
+// Update to use Font Awesome icons and new UI
+
 document.addEventListener("DOMContentLoaded", () => {
   const themeToggle = document.getElementById("theme-toggle");
-  const themeLabel = document.querySelector(".theme-label");
-  
-  // Function to update theme label
-  function updateThemeLabel(isDark) {
-    themeLabel.textContent = isDark ? "Light Theme" : "Dark Theme";
-  }
-  
+  const themeIcon = document.getElementById("theme-icon");
+
   // Load saved theme preference
   chrome.storage.sync.get(["theme"], (result) => {
     const currentTheme = result.theme || "light";
     document.documentElement.setAttribute("data-theme", currentTheme);
     if (currentTheme === "dark") {
-      themeToggle.classList.add("active");
-      updateThemeLabel(true);
+      themeIcon.classList.remove("fa-moon");
+      themeIcon.classList.add("fa-sun");
     } else {
-      updateThemeLabel(false);
+      themeIcon.classList.remove("fa-sun");
+      themeIcon.classList.add("fa-moon");
     }
   });
-  
+
   // Toggle theme on click
   themeToggle.addEventListener("click", () => {
     const currentTheme = document.documentElement.getAttribute("data-theme");
     const newTheme = currentTheme === "dark" ? "light" : "dark";
-    const isDark = newTheme === "dark";
-    
     document.documentElement.setAttribute("data-theme", newTheme);
-    themeToggle.classList.toggle("active");
-    updateThemeLabel(isDark);
-    
-    // Save theme preference
+    if (newTheme === "dark") {
+      themeIcon.classList.remove("fa-moon");
+      themeIcon.classList.add("fa-sun");
+    } else {
+      themeIcon.classList.remove("fa-sun");
+      themeIcon.classList.add("fa-moon");
+    }
     chrome.storage.sync.set({ theme: newTheme });
+  });
+
+  // Show empty card by default
+  document.getElementById("summary-card").style.display = "none";
+  document.getElementById("empty-card").style.display = "block";
+});
+
+// Handle summary type pill label
+function getSummaryPillLabel(type) {
+  switch (type) {
+    case "brief": return "Brief Summary";
+    case "detailed": return "Detailed Summary";
+    case "bullets": return "Bullet Points";
+    default: return "Summary";
+  }
+}
+
+document.getElementById("summarize").addEventListener("click", async () => {
+  const resultDiv = document.getElementById("result");
+  const summaryCard = document.getElementById("summary-card");
+  const emptyCard = document.getElementById("empty-card");
+  const pill = document.getElementById("summary-pill");
+  const summaryType = document.getElementById("summary-type").value;
+
+  // Show loading in summary card
+  summaryCard.style.display = "block";
+  emptyCard.style.display = "none";
+  pill.textContent = getSummaryPillLabel(summaryType);
+  resultDiv.innerHTML = '<div class="loading"><div class="loader"></div></div>';
+
+  // Get API key from storage
+  chrome.storage.sync.get(["geminiApiKey"], async (result) => {
+    if (!result.geminiApiKey) {
+      resultDiv.innerHTML =
+        "<p style='color: #dc3545;'>API key not found. Please set your API key in the extension options.</p>";
+      return;
+    }
+
+    chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+      chrome.tabs.sendMessage(
+        tab.id,
+        { type: "GET_ARTICLE_TEXT" },
+        async (res) => {
+          if (!res || !res.text) {
+            resultDiv.innerHTML =
+              "<p style='color: #dc3545;'>Could not extract article text from this page.</p>";
+            return;
+          }
+
+          try {
+            const summary = await getGeminiSummary(
+              res.text,
+              summaryType,
+              result.geminiApiKey
+            );
+            // Render markdown content
+            resultDiv.innerHTML = parseMarkdown(summary);
+          } catch (error) {
+            resultDiv.innerHTML = `<p style="color: #dc3545;">Error: ${
+              error.message || "Failed to generate summary."
+            }</p>`;
+          }
+        }
+      );
+    });
   });
 });
 
-document.getElementById("summarize").addEventListener("click", async () => {
-    const resultDiv = document.getElementById("result");
-    resultDiv.innerHTML = '<div class="loading"><div class="loader"></div></div>';
-  
-    const summaryType = document.getElementById("summary-type").value;
-  
-    // Get API key from storage
-    chrome.storage.sync.get(["geminiApiKey"], async (result) => {
-      if (!result.geminiApiKey) {
-        resultDiv.innerHTML =
-          "<p style='color: #dc3545;'>API key not found. Please set your API key in the extension options.</p>";
-        return;
-      }
-  
-      chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-        chrome.tabs.sendMessage(
-          tab.id,
-          { type: "GET_ARTICLE_TEXT" },
-          async (res) => {
-            if (!res || !res.text) {
-              resultDiv.innerHTML =
-                "<p style='color: #dc3545;'>Could not extract article text from this page.</p>";
-              return;
-            }
-  
-            try {
-              const summary = await getGeminiSummary(
-                res.text,
-                summaryType,
-                result.geminiApiKey
-              );
-              // Render markdown content
-              resultDiv.innerHTML = parseMarkdown(summary);
-            } catch (error) {
-              resultDiv.innerHTML = `<p style="color: #dc3545;">Error: ${
-                error.message || "Failed to generate summary."
-              }</p>`;
-            }
-          }
-        );
+// Copy button logic (icon button)
+document.getElementById("copy-btn").addEventListener("click", () => {
+  const resultDiv = document.getElementById("result");
+  // Get text content without HTML tags for copying
+  const summaryText = resultDiv.innerText || resultDiv.textContent;
+  if (summaryText && summaryText.trim() !== "") {
+    navigator.clipboard
+      .writeText(summaryText)
+      .then(() => {
+        const copyBtn = document.getElementById("copy-btn");
+        const icon = copyBtn.querySelector("i");
+        icon.classList.remove("fa-copy");
+        icon.classList.add("fa-check");
+        setTimeout(() => {
+          icon.classList.remove("fa-check");
+          icon.classList.add("fa-copy");
+        }, 1500);
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
       });
-    });
-  });
-  
-    document.getElementById("copy-btn").addEventListener("click", () => {
-    const resultDiv = document.getElementById("result");
-    // Get text content without HTML tags for copying
-    const summaryText = resultDiv.innerText || resultDiv.textContent;
-
-    if (summaryText && summaryText.trim() !== "") {
-      navigator.clipboard
-        .writeText(summaryText)
-        .then(() => {
-          const copyBtn = document.getElementById("copy-btn");
-          const originalText = copyBtn.innerText;
-  
-          copyBtn.innerText = "Copied!";
-          setTimeout(() => {
-            copyBtn.innerText = originalText;
-          }, 2000);
-        })
-        .catch((err) => {
-          console.error("Failed to copy text: ", err);
-        });
-    }
-  });
+  }
+});
   
   async function getGeminiSummary(text, summaryType, apiKey) {
     // Truncate very long texts to avoid API limits (typically around 30K tokens)
