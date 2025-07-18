@@ -42,8 +42,6 @@ function parseMarkdown(text) {
 }
 
 // Theme toggle functionality
-// Update to use Font Awesome icons and new UI
-
 document.addEventListener("DOMContentLoaded", () => {
   const themeToggle = document.getElementById("theme-toggle");
   const themeIcon = document.getElementById("theme-icon");
@@ -74,23 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
       themeIcon.classList.add("fa-moon");
     }
     chrome.storage.sync.set({ theme: newTheme });
-  });
-
-  // Check if current page is YouTube and update UI accordingly
-  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-    if (tab.url && tab.url.includes('youtube.com/watch')) {
-      // Update button text for YouTube
-      const summarizeBtn = document.getElementById("summarize");
-      summarizeBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i>Summarize This Video';
-      
-      // Update empty card message
-      const emptyResult = document.getElementById("empty-result");
-      emptyResult.innerHTML = 'Select a summary type and click <b>\'Summarize This Video\'</b> to generate a summary.';
-      
-      // Add YouTube indicator to header
-      const headerTitle = document.querySelector('.header-title');
-      headerTitle.innerHTML = 'AI Summary <span class="youtube-indicator">(YouTube)</span>';
-    }
   });
 
   // Show empty card by default
@@ -141,12 +122,10 @@ document.getElementById("summarize").addEventListener("click", async () => {
           }
 
           try {
-            const isYouTube = res.type === 'youtube';
             const summary = await getGeminiSummary(
               res.text,
               summaryType,
-              result.geminiApiKey,
-              isYouTube
+              result.geminiApiKey
             );
             // Render markdown content
             resultDiv.innerHTML = parseMarkdown(summary);
@@ -185,72 +164,59 @@ document.getElementById("copy-btn").addEventListener("click", () => {
   }
 });
   
-  async function getGeminiSummary(text, summaryType, apiKey, isYouTube = false) {
-    // Truncate very long texts to avoid API limits (typically around 30K tokens)
-    const maxLength = 20000;
-    const truncatedText =
-      text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+async function getGeminiSummary(text, summaryType, apiKey) {
+  // Truncate very long texts to avoid API limits (typically around 30K tokens)
+  const maxLength = 20000;
+  const truncatedText =
+    text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+
+  let prompt;
   
-    let prompt;
-    const contentType = isYouTube ? "YouTube video" : "article";
-    
-    switch (summaryType) {
-      case "brief":
-        if (isYouTube) {
-          prompt = `Provide a brief summary of the following YouTube video in 2-3 sentences. Focus on the main topic and key takeaways:\n\n${truncatedText}`;
-        } else {
-          prompt = `Provide a brief summary of the following article in 2-3 sentences:\n\n${truncatedText}`;
-        }
-        break;
-      case "detailed":
-        if (isYouTube) {
-          prompt = `Provide a detailed summary of the following YouTube video, covering all main points, key details, and insights. Include important information from the transcript, description, and viewer comments:\n\n${truncatedText}`;
-        } else {
-          prompt = `Provide a detailed summary of the following article, covering all main points and key details:\n\n${truncatedText}`;
-        }
-        break;
-      case "bullets":
-        if (isYouTube) {
-          prompt = `Summarize the following YouTube video in 5-7 key points. Format each point as a line starting with "- " (dash followed by a space). Focus on the main topics, insights, and important information from the video:\n\n${truncatedText}`;
-        } else {
-          prompt = `Summarize the following article in 5-7 key points. Format each point as a line starting with "- " (dash followed by a space). Do not use asterisks or other bullet symbols, only use the dash. Keep each point concise and focused on a single key insight from the article:\n\n${truncatedText}`;
-        }
-        break;
-      default:
-        prompt = `Summarize the following ${contentType}:\n\n${truncatedText}`;
-    }
-  
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [{ text: prompt }],
-              },
-            ],
-            generationConfig: {
-              temperature: 0.2,
-            },
-          }),
-        }
-      );
-  
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error?.message || "API request failed");
-      }
-  
-      const data = await res.json();
-      return (
-        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "No summary available."
-      );
-    } catch (error) {
-      console.error("Error calling Gemini API:", error);
-      throw new Error("Failed to generate summary. Please try again later.");
-    }
+  switch (summaryType) {
+    case "brief":
+      prompt = `Provide a brief summary of the following article in 2-3 sentences:\n\n${truncatedText}`;
+      break;
+    case "detailed":
+      prompt = `Provide a detailed summary of the following article, covering all main points and key details:\n\n${truncatedText}`;
+      break;
+    case "bullets":
+      prompt = `Summarize the following article in 5-7 key points. Format each point as a line starting with "- " (dash followed by a space). Do not use asterisks or other bullet symbols, only use the dash. Keep each point concise and focused on a single key insight from the article:\n\n${truncatedText}`;
+      break;
+    default:
+      prompt = `Summarize the following article:\n\n${truncatedText}`;
   }
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.2,
+          },
+        }),
+      }
+    );
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error?.message || "API request failed");
+    }
+
+    const data = await res.json();
+    return (
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "No summary available."
+    );
+  } catch (error) {
+    console.error("Error calling Gemini API:", error);
+    throw new Error("Failed to generate summary. Please try again later.");
+  }
+}

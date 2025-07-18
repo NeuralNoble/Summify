@@ -10,7 +10,6 @@ A powerful Chrome extension that uses Google's Gemini AI to generate intelligent
 - **Multiple Summary Types**: Choose from brief, detailed, or bullet-point summaries
 - **Google Gemini AI**: Powered by Google's advanced language model
 - **Smart Content Extraction**: Automatically detects and extracts article content and YouTube video information
-- **YouTube Video Support**: Summarize videos using transcripts, descriptions, and comments
 - **High-Quality Output**: Generate professional, well-structured summaries
 
 ### 🎨 User Experience
