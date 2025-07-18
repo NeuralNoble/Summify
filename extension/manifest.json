@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "AI Summary for Articles",
-    "version": "1.0",
-    "description": "A simple extension that demonstrates the use of the chrome.tabs API",
+    "name": "AI Summary for Articles & Videos",
+    "version": "1.1",
+    "description": "Generate AI-powered summaries of web articles and YouTube videos using Google's Gemini AI",
     "permissions": [
         "tabs",
         "activeTab",

@@ -1,13 +1,16 @@
 # Summify
 
-A powerful Chrome extension that uses Google's Gemini AI to generate intelligent summaries of web articles. Transform long articles into concise, readable summaries with multiple formatting options.
+
+
+A powerful Chrome extension that uses Google's Gemini AI to generate intelligent summaries of web articles and YouTube videos. Transform long articles and videos into concise, readable summaries with multiple formatting options.
 
 ## 🌟 Features
 
 ### 🤖 AI-Powered Summarization
 - **Multiple Summary Types**: Choose from brief, detailed, or bullet-point summaries
 - **Google Gemini AI**: Powered by Google's advanced language model
-- **Smart Content Extraction**: Automatically detects and extracts article content
+- **Smart Content Extraction**: Automatically detects and extracts article content and YouTube video information
+- **YouTube Video Support**: Summarize videos using transcripts, descriptions, and comments
 - **High-Quality Output**: Generate professional, well-structured summaries
 
 ### 🎨 User Experience
@@ -33,17 +36,17 @@ A powerful Chrome extension that uses Google's Gemini AI to generate intelligent
 ### 1. **Brief Summary**
 - 2-3 sentence overview
 - Perfect for quick understanding
-- Ideal for busy readers
+- Ideal for busy readers and video viewers
 
 ### 2. **Detailed Summary**
 - Comprehensive coverage of main points
 - Includes key details and insights
-- Great for thorough understanding
+- Great for thorough understanding of articles and videos
 
 ### 3. **Bullet Points**
 - 5-7 key points formatted as a list
 - Easy to scan and reference
-- Perfect for note-taking
+- Perfect for note-taking from articles and videos
 
 ## 🚀 Installation & Setup
 
@@ -74,7 +77,15 @@ A powerful Chrome extension that uses Google's Gemini AI to generate intelligent
 
 ## 📖 How to Use
 
-### Basic Usage
+### YouTube Video Summarization
+- **Navigate** to any YouTube video you want to summarize
+- **Ensure transcripts are available** (click the "..." menu and select "Show transcript" if available)
+- **Click** the AI Summary extension icon in your toolbar
+- **Select** your preferred summary type from the dropdown
+- **Click** "Summarize This Video"
+- **Wait** for the AI to generate your summary using video transcript, description, and comments
+- **Copy** the summary using the "Copy Summary" button
+
 1. **Navigate** to any article or webpage you want to summarize
 2. **Click** the AI Summary extension icon in your toolbar
 3. **Select** your preferred summary type from the dropdown
@@ -83,9 +94,10 @@ A powerful Chrome extension that uses Google's Gemini AI to generate intelligent
 6. **Copy** the summary using the "Copy Summary" button
 
 ### Tips for Best Results
-- Works best with articles, blog posts, and news content
+- Works best with articles, blog posts, news content, and YouTube videos
 - Ensure the page has loaded completely before summarizing
-- For longer articles, the extension automatically truncates content to stay within API limits
+- For YouTube videos, enable transcripts for better summarization results
+- For longer content, the extension automatically truncates content to stay within API limits
 - Use different summary types based on your needs:
   - **Brief**: Quick overview
   - **Detailed**: Comprehensive analysis
@@ -110,10 +122,12 @@ A powerful Chrome extension that uses Google's Gemini AI to generate intelligent
 - News articles and blog posts
 - Documentation and guides
 - Research papers and academic content
+- YouTube videos (with transcripts, descriptions, and comments)
 - Any webpage with substantial text content
 
 ### Content Extraction
 - Automatically detects article content using smart selectors
+- For YouTube videos, extracts title, description, transcript, and comments
 - Falls back to paragraph extraction if needed
 - Handles various website structures and layouts
 
